@@ -1,0 +1,91 @@
+/**
+ * export the module via AMD, CommonJS or as a browser global
+ * Export code from https://github.com/umdjs/umd/blob/master/returnExports.js
+ */
+;(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(factory)
+    } else if (typeof exports === 'object') {
+        /**
+         * Node. Does not work with strict CommonJS, but
+         * only CommonJS-like environments that support module.exports,
+         * like Node.
+         */
+        module.exports = factory()
+    } else {
+        // Browser globals (root is window)
+        factory()(root.lunr);
+    }
+}(this, function () {
+    /**
+     * Just return a value to define the module export.
+     * This example returns an object, but the module
+     * can return a function as the exported value.
+     */
+    return function(lunr) {
+        /* throw error if lunr is not yet included */
+        if ('undefined' === typeof lunr) {
+            throw new Error('Lunr is not present. Please include / require Lunr before this script.');
+        }
+
+        /* throw error if lunr stemmer support is not yet included */
+        if ('undefined' === typeof lunr.stemmerSupport) {
+            throw new Error('Lunr stemmer support is not present. Please include / require Lunr stemmer support before this script.');
+        }
+
+        /* register specific locale function */
+        lunr.zh = function () {
+            this.pipeline.reset();
+            this.pipeline.add(
+                lunr.zh.trimmer,
+                lunr.zh.stopWordFilter,
+                lunr.zh.stemmer
+            );
+
+          this.tokenizer = lunr.zh.tokenizer;
+
+//            // for lunr version 2
+//            // this is necessary so that every searched word is also stemmed before
+//            // in lunr <= 1 this is not needed, as it is done using the normal pipeline
+//            if (this.searchPipeline) {
+//                this.searchPipeline.reset();
+//                this.searchPipeline.add(lunr.zh.stemmer)
+//            }
+        };
+
+        lunr.zh.tokenizer = function(obj){
+          console.log("to tokenize:", obj);
+          const pattern = new RegExp(/([A-zÀ-ÿ-]+|[0-9._]+|.|!|\?|'|"|:|;|,|-)/i);
+          const results = obj.split(pattern).filter(e => e !== '' && e !== ' ');
+            console.log("tokens:", results);
+            return results;
+        };
+
+        /* lunr trimmer function */
+//        lunr.zh.wordCharacters = "{{wordCharacters}}";
+//        lunr.zh.trimmer = lunr.trimmerSupport.generateTrimmer(lunr.zh.wordCharacters);
+//
+//        lunr.Pipeline.registerFunction(lunr.zh.trimmer, 'trimmer-zh');
+        lunr.zh.trimmer = (function() {
+          /* TODO stemmer  */
+          return function(word) {
+            return word;
+          }
+        })();
+
+        /* lunr stemmer function */
+        lunr.zh.stemmer = (function() {
+          /* TODO stemmer  */
+          return function(word) {
+            return word;
+          }
+        })();
+
+        lunr.Pipeline.registerFunction(lunr.zh.stemmer, 'stemmer-zh');
+
+        lunr.zh.stopWordFilter = lunr.generateStopWordFilter('的'.split(' '));
+
+        lunr.Pipeline.registerFunction(lunr.zh.stopWordFilter, 'stopWordFilter-zh');
+    };
+}))
