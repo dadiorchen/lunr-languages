@@ -34,6 +34,11 @@
             throw new Error('Lunr stemmer support is not present. Please include / require Lunr stemmer support before this script.');
         }
 
+        /*
+         * Like Japanese, need to set the tokenizer in a special way
+         */
+        var isLunr2 = lunr.version[0] == "2";
+
         /* register specific locale function */
         lunr.zh = function () {
             this.pipeline.reset();
@@ -43,7 +48,16 @@
                 lunr.zh.stemmer
             );
 
-          this.tokenizer = lunr.zh.tokenizer;
+          if(isLunr2){
+            this.tokenizer = lunr.zh.tokenizer;
+          }else{
+            if (lunr.tokenizer) { // for lunr version 0.6.0
+              lunr.tokenizer = lunr.zh.tokenizer;
+            }
+            if (this.tokenizerFn) { // for lunr version 0.7.0 -> 1.0.0
+              this.tokenizerFn = lunr.zh.tokenizer;
+            }
+          }
 
 //            // for lunr version 2
 //            // this is necessary so that every searched word is also stemmed before
@@ -55,10 +69,8 @@
         };
 
         lunr.zh.tokenizer = function(obj){
-          console.log("to tokenize:", obj);
           const pattern = new RegExp(/([A-zÀ-ÿ-]+|[0-9._]+|.|!|\?|'|"|:|;|,|-)/i);
           const results = obj.split(pattern).filter(e => e !== '' && e !== ' ');
-            console.log("tokens:", results);
             return results;
         };
 
