@@ -79,20 +79,29 @@
 //        lunr.zh.trimmer = lunr.trimmerSupport.generateTrimmer(lunr.zh.wordCharacters);
 //
 //        lunr.Pipeline.registerFunction(lunr.zh.trimmer, 'trimmer-zh');
+//        lunr.zh.trimmer = (function() {
+//          /* TODO stemmer  */
+//          return function(word) {
+//            return word;
+//          }
+//        })();
+
+        /* lunr trimmer function */
         lunr.zh.trimmer = (function() {
           /* TODO stemmer  */
           return function(word) {
-            return word;
+            return word.toLowerCase();
           }
         })();
 
         /* lunr stemmer function */
-        lunr.zh.stemmer = (function() {
-          /* TODO stemmer  */
-          return function(word) {
-            return word;
-          }
-        })();
+//        lunr.zh.stemmer = (function() {
+//          /* TODO stemmer  */
+//          return function(word) {
+//            return word;
+//          }
+//        })();
+        lunr.zh.stemmer = lunr.stemmer;
 
         lunr.Pipeline.registerFunction(lunr.zh.stemmer, 'stemmer-zh');
 
